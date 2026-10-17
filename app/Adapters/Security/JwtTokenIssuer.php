@@ -10,7 +10,11 @@ final class JwtTokenIssuer implements TokenIssuer
 
     public function __construct(?string $secret = null)
     {
-        $this->secret = $secret ?: (env('JWT_SECRET') ?: 'fallback-secret-for-manager-library-2026');
+        $resolved = $secret ?: config('library.jwt_secret');
+        if (! is_string($resolved) || $resolved === '') {
+            throw new \RuntimeException('JWT_SECRET no está configurado.');
+        }
+        $this->secret = $resolved;
     }
 
     public function issue(string $userId, string $role): array

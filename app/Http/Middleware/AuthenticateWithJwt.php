@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Application\Ports\TokenIssuer;
+use App\Domain\DomainError;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +17,7 @@ final class AuthenticateWithJwt
         $token = $request->bearerToken();
         if (! $token) {
             return response()->json([
-                'code'    => 'INVALID_CREDENTIALS',
+                'code'    => DomainError::INVALID_CREDENTIALS,
                 'message' => 'Token de autorización ausente o inválido.',
                 'details' => [],
             ], 401);
@@ -26,7 +27,7 @@ final class AuthenticateWithJwt
 
         if (! $payload) {
             return response()->json([
-                'code'    => 'INVALID_CREDENTIALS',
+                'code'    => DomainError::INVALID_CREDENTIALS,
                 'message' => 'El token ha expirado o no es válido.',
                 'details' => [],
             ], 401);
@@ -34,7 +35,7 @@ final class AuthenticateWithJwt
 
         if ($requiredRole && $payload['role'] !== $requiredRole) {
             return response()->json([
-                'code'    => 'FORBIDDEN_ROLE',
+                'code'    => DomainError::FORBIDDEN_ROLE,
                 'message' => 'No tiene permisos suficientes para ejecutar esta acción.',
                 'details' => [],
             ], 403);

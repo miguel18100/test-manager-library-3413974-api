@@ -1,8 +1,4 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// El sistema no define comandos programados. El único comando propio es
+// `library:bootstrap-admin` (app/Console/Commands/BootstrapAdminCommand.php).

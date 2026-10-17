@@ -2,15 +2,10 @@
 /node_modules/
 .env
 .env.backup
-.env.production
 .phpunit.result.cache
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-/.idea
-/.vscode
 /storage/*.key
+/storage/app/covers/*
 /storage/framework/cache/*
 /storage/framework/sessions/*
 /storage/framework/views/*
+/storage/logs/*

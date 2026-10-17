@@ -21,6 +21,7 @@ final class DomainError extends \RuntimeException
     public const MEMBER_LIMIT_EXCEEDED = 'MEMBER_LIMIT_EXCEEDED';
     public const DUPLICATE_BOOK_IN_LOAN = 'DUPLICATE_BOOK_IN_LOAN';
     public const INVALID_DATE_RANGE = 'INVALID_DATE_RANGE';
+    public const FORBIDDEN_ROLE = 'FORBIDDEN_ROLE';
 
     /** @param list<array{field:string, issue:string}> $details */
     public function __construct(

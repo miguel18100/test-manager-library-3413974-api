@@ -1,51 +1,53 @@
-# test-manager-library-3413974-api
+# Manager Library · API
 
-> **Prueba técnica · Ficha ADSO 3413974**
-> Horario: de **9:15 a. m. a 3:00 p. m.** (15:00). Después, **feria de presentación** de cada proyecto.
+Backend de Manager Library en **PHP 8.3 con Laravel**. Implementa el contrato de
+[`api-contract.md`](../manager-library-docs/spec-python/api-contract.md) y el modelo de
+[`data-model.md`](../manager-library-docs/spec-python/data-model.md) sobre PostgreSQL 16.
 
-Este repositorio es el **backend** de *Manager Library*, en **PHP con Laravel**. **Empieza vacío a propósito**: se construye en el fork de cada aprendiz.
+## Arquitectura hexagonal
 
-## Instrucciones
+```
+app/Domain        objetos de valor y agregados (Isbn, Quantity, DateRange, Book, Loan, Member, User)
+app/Application   casos de uso (Services) y puertos de salida (Ports, solo interfaces)
+app/Adapters      Persistence (PostgreSQL), Security (JWT, hash), Infrastructure (reloj, UUID, portadas)
+app/Http          controlador y middleware JWT: traduce HTTP a casos de uso
+app/Providers     AppServiceProvider: único punto donde los puertos se enlazan con los adaptadores
+```
 
-Cada aprendiz debe **crear el fork** de los seis repositorios del proyecto y **resolver el proyecto
-con el spec planteado**.
+Regla de dependencia (artículos I–III): el dominio no importa nada de afuera, la aplicación no
+importa adaptadores ni Laravel. Lo vigila `tests/Architecture`.
 
-1. Hacer fork, a su cuenta de GitHub, de cada repositorio de la tabla del final.
-2. Leer el spec en [`test-manager-library-3413974-docs`](https://github.com/code-sena/test-manager-library-3413974-docs).
-   Se entrega en dos versiones: `spec-python/` y `spec-.net/`.
-3. Desarrollar en los forks.
+## Variables de entorno
 
-## El reto se desarrolla con React y PHP (Laravel)
-
-El spec está escrito para Python y para .NET, pero el reto **no** se hace en esos lenguajes:
-
-| Capa | Tecnología del reto |
+| Variable | Uso |
 |---|---|
-| Frontend | React |
-| Backend | PHP con Laravel |
+| `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL (esquema `library`) |
+| `APP_KEY` | Clave de Laravel |
+| `JWT_SECRET` | Firma de tokens (8 h). **Obligatoria**: sin ella la API no emite tokens |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Administrador inicial, creado por `php artisan library:bootstrap-admin` |
+| `CORS_ORIGIN` | Único origen permitido (el frontend) |
+| `COVERS_DIR` | Carpeta de portadas |
+| `ALLOW_SIMULATED_TIME` | `false` por defecto. Solo para demostración: deja que el sembrador fije la hora de un préstamo |
 
-Lo que el spec define sobre el negocio —historias, criterios de aceptación, reglas, contrato de la
-API, modelo de datos— se respeta. Lo que define sobre la tecnología se traduce a React y Laravel.
+## Base de datos
 
-## La prueba no consiste en escribir el código
+`php artisan migrate` aplica dos migraciones:
 
-El propósito principal es ver la **capacidad de desempeño con SDD** (*Spec-Driven Development*,
-desarrollo guiado por especificación): cómo se lee, se interpreta y se aplica una especificación
-para llevarla a un stack distinto. El código es el medio, no el fin.
+1. `…000001_create_library_schema`: seis tablas, claves foráneas, índices y las cinco categorías (T-02).
+2. `…000002_add_domain_invariants`: `ck_book_total_positive` y `ck_user_role` (T-18).
 
-## Feria de presentación
+El motor arranca vacío; todo el DDL vive aquí (ADR-001).
 
-Al cerrar la prueba (3:00 p. m.) cada aprendiz **presenta su proyecto** al grupo: qué construyó del spec, qué dejó fuera y por qué,
-y una demostración corta de lo que funciona (la aplicación y el sitio público). Lo que se presenta es lo que quedó **subido a los forks
-antes de las 3:00 p. m.**: no se presenta nada que no esté en GitHub.
+## Pruebas
 
-## Los seis repositorios
+```
+composer install
+php artisan test
+```
 
-| Repositorio | Qué va ahí |
-|---|---|
-| [`test-manager-library-3413974-docs`](https://github.com/code-sena/test-manager-library-3413974-docs) | El spec: `spec-python/` y `spec-.net/` |
-| [`test-manager-library-3413974-api`](https://github.com/code-sena/test-manager-library-3413974-api) | Backend en PHP (Laravel) |
-| [`test-manager-library-3413974-app`](https://github.com/code-sena/test-manager-library-3413974-app) | Frontend en React |
-| [`test-manager-library-3413974-page`](https://github.com/code-sena/test-manager-library-3413974-page) | Sitio público estático de presentación |
-| [`test-manager-library-3413974-infra`](https://github.com/code-sena/test-manager-library-3413974-infra) | Contenedores, red, volúmenes y motor de base de datos vacío |
-| [`test-manager-library-3413974-tool`](https://github.com/code-sena/test-manager-library-3413974-tool) | Utilidades: sembrador de datos de demostración |
+- `tests/Unit`: objetos de valor, `Book`, `Loan`, `User`/`Member` y `LoanService` contra fakes (T-03 a T-10).
+- `tests/Architecture`: reglas de dependencia entre capas (T-19).
+- `tests/Contract`: las rutas expuestas son exactamente las del contrato y el cuerpo de error es único (T-16).
+
+Las pruebas de integración contra PostgreSQL (T-12, T-13, T-18) y la prueba concurrente del último
+ejemplar (RNF-2) requieren el motor levantado con `manager-library-infra`.

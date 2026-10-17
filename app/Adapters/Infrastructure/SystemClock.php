@@ -11,7 +11,9 @@ final class SystemClock implements Clock
 {
     public function now(): DateTimeImmutable
     {
-        $header = Request::header('X-Simulated-Time');
+        // La hora simulada solo existe para el sembrador de demostración y está apagada por defecto:
+        // si cualquier cliente pudiera fijar la hora, eludiría los vencimientos (RN-2, RN-3).
+        $header = config('library.allow_simulated_time') ? Request::header('X-Simulated-Time') : null;
         if ($header) {
             $parsed = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s\Z', $header, new DateTimeZone('UTC'));
             if ($parsed !== false) {

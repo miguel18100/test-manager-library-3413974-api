@@ -10,7 +10,7 @@ final class DiskCoverStorage implements CoverStorage
 
     public function __construct(?string $dir = null)
     {
-        $this->dir = $dir ?: (env('COVERS_DIR') ?: storage_path('app/covers'));
+        $this->dir = $dir ?: (config('library.covers_dir') ?: storage_path('app/covers'));
         if (! is_dir($this->dir)) {
             @mkdir($this->dir, 0775, true);
         }

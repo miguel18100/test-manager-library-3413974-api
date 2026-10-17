@@ -15,8 +15,8 @@ class BootstrapAdminCommand extends Command
 
     public function handle(UserRepository $users, PasswordHasher $hasher, IdGenerator $ids): int
     {
-        $rawUsername = env('ADMIN_USERNAME');
-        $rawPassword = env('ADMIN_PASSWORD');
+        $rawUsername = config('library.admin_username');
+        $rawPassword = config('library.admin_password');
 
         if (! $rawUsername || ! $rawPassword) {
             $this->warn('ADMIN_USERNAME o ADMIN_PASSWORD no están configurados en el entorno.');

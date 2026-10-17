@@ -1,13 +1,14 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => [env('CORS_ORIGIN', 'http://localhost:5173'), 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    // api-contract §4: solo el origen del frontend configurado por entorno.
+    'allowed_origins' => [env('CORS_ORIGIN', 'http://localhost:5173')],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => true,
+    // La autenticación va en la cabecera Authorization, no en cookies.
+    'supports_credentials' => false,
 ];
-

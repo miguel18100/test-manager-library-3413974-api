@@ -39,7 +39,18 @@ final class LoanService
             throw DomainError::validation('Un préstamo debe tener entre 1 y 3 libros.', 'items', 'de 1 a 3 elementos');
         }
 
-        $bookIds = array_map(fn ($i) => $i['book_id'] ?? '', $items);
+        if (trim($memberId) === '') {
+            throw DomainError::validation('El socio es obligatorio.', 'member_id', 'obligatorio');
+        }
+
+        $bookIds = [];
+        foreach (array_values($items) as $index => $item) {
+            $bookId = is_array($item) ? ($item['book_id'] ?? null) : null;
+            if (! is_string($bookId) || trim($bookId) === '') {
+                throw DomainError::validation('Cada línea necesita un libro.', "items[{$index}].book_id", 'obligatorio');
+            }
+            $bookIds[] = trim($bookId);
+        }
         if (count($bookIds) !== count(array_unique($bookIds))) {
             throw new DomainError(
                 DomainError::DUPLICATE_BOOK_IN_LOAN,
